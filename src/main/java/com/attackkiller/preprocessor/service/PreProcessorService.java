@@ -44,23 +44,18 @@ public class PreProcessorService {
             return;
         }
 
-        try {
-            Files.walkFileTree(Paths.get(cSharpDir), new SimpleFileVisitor<>() {});
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         try (Stream<Path> paths = Files.walk(Paths.get(cSharpDir))) {
             paths.filter(Files::isRegularFile)
-                 .forEach(path -> processFile(path.getFileName().toString()));
+                 .forEach(path -> processFile(path.getFileName().toString(), outputDir));
         }catch(IOException e){
             logger.error("Error while reading c-sharp directory ", e);
         }
 
+        executor.shutdown();
     }
 
-    private void processFile(String fileName){
-        executor.submit()
+    private void processFile(String fileName, String outputDir){
+        executor.submit(new FileProcessRunnable(fileName, outputDir));
     }
 
 }
